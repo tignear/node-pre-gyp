@@ -1,13 +1,14 @@
-# @discordjs/node-pre-gyp ![Test](https://github.com/discordjs/node-pre-gyp/workflows/Test/badge.svg)
+# @tignear/node-pre-gyp ![Test](https://github.com/tignear/node-pre-gyp/workflows/Test/badge.svg)
 > node-pre-gyp makes it easy to publish and install Node.js C++ addons from binaries
 
-`@discordjs/node-pre-gyp` stands between [npm](https://github.com/npm/npm) and [node-gyp](https://github.com/Tootallnate/node-gyp) and offers a cross-platform method of binary deployment.
+`@tignear/node-pre-gyp` stands between [npm](https://github.com/npm/npm) and [node-gyp](https://github.com/Tootallnate/node-gyp) and offers a cross-platform method of binary deployment.
 
 # Features
 
  - A command line tool called `node-pre-gyp` that can install your package's C++ module from a binary.
  - A variety of developer targeted commands for packaging, testing, and publishing binaries.
- - A JavaScript module that can dynamically require your installed binary: `require('@discordjs/node-pre-gyp').find`
+ - A JavaScript module that can dynamically require your installed binary: `require('@tignear/node-pre-gyp').find`
+ - A JavaScript module that can dynamically know metadata your installed binary: `require('@tignear/node-pre-gyp').meta`
 
 For a hello world example of a module packaged with `node-pre-gyp` see <https://github.com/springmeyer/node-addon-example> and [the wiki ](https://github.com/mapbox/node-pre-gyp/wiki/Modules-using-node-pre-gyp) for real world examples.
 
@@ -78,7 +79,7 @@ This looks like:
 
 ```json
 "dependencies"  : {
-  "@discordjs/node-pre-gyp": "0.1.x"
+  "@tignear/node-pre-gyp": "^1.0.0"
 },
 "scripts": {
   "install": "node-pre-gyp install --fallback-to-build"
@@ -173,10 +174,10 @@ const bindings = require('./bindings')
 Change those lines to:
 
 ```js
-const binary = require('@discordjs/node-pre-gyp');
+const binary = require('@tignear/node-pre-gyp');
 const path = require('path');
-const binding_path = binary.find(path.resolve(path.join(__dirname,'./package.json')));
-const binding = require(binding_path);
+const metadata = binary.meta(path.resolve(path.join(__dirname,'./package.json')));
+const binding = require(metadata.module);
 ```
 
 For a full example see [node-addon-example's index.js](https://github.com/springmeyer/node-addon-example/blob/2ff60a8ded7f042864ad21db00c3a5a06cf47075/index.js#L1-L4)
