@@ -1,22 +1,34 @@
-# @tignear/node-pre-gyp ![Test](https://github.com/tignear/node-pre-gyp/workflows/Test/badge.svg)
-> node-pre-gyp makes it easy to publish and install Node.js C++ addons from binaries
+# @mapbox/node-pre-gyp
 
-`@tignear/node-pre-gyp` stands between [npm](https://github.com/npm/npm) and [node-gyp](https://github.com/Tootallnate/node-gyp) and offers a cross-platform method of binary deployment.
+#### @mapbox/node-pre-gyp makes it easy to publish and install Node.js C++ addons from binaries
 
-# Features
+[![Build Status](https://travis-ci.com/mapbox/node-pre-gyp.svg?branch=master)](https://travis-ci.com/mapbox/node-pre-gyp)
+[![Build status](https://ci.appveyor.com/api/projects/status/3nxewb425y83c0gv)](https://ci.appveyor.com/project/Mapbox/node-pre-gyp)
+
+`@mapbox/node-pre-gyp` stands between [npm](https://github.com/npm/npm) and [node-gyp](https://github.com/Tootallnate/node-gyp) and offers a cross-platform method of binary deployment.
+
+### Special note on previous package
+
+On Feb 9th, 2021 `@mapbox/node-pre-gyp@1.0.0` was [released](./CHANGELOG.md). Older, unscoped versions that are not part of the `@mapbox` org are deprecated and only `@mapbox/node-pre-gyp` will see updates going forward. To upgrade to the new package do:
+
+```
+npm uninstall node-pre-gyp --save
+npm install @mapbox/node-pre-gyp --save
+```
+
+### Features
 
  - A command line tool called `node-pre-gyp` that can install your package's C++ module from a binary.
  - A variety of developer targeted commands for packaging, testing, and publishing binaries.
- - A JavaScript module that can dynamically require your installed binary: `require('@tignear/node-pre-gyp').find`
- - A JavaScript module that can dynamically know metadata your installed binary: `require('@tignear/node-pre-gyp').meta`
+ - A JavaScript module that can dynamically require your installed binary: `require('@mapbox/node-pre-gyp').find`
 
 For a hello world example of a module packaged with `node-pre-gyp` see <https://github.com/springmeyer/node-addon-example> and [the wiki ](https://github.com/mapbox/node-pre-gyp/wiki/Modules-using-node-pre-gyp) for real world examples.
 
 # Credits
 
- - The module is modeled after [node-gyp](https://github.com/Tootallnate/node-gyp) by [@Tootallnate](https://github.com/Tootallnate)
- - Motivation for initial development came from [@ErisDS](https://github.com/ErisDS) and the [Ghost Project](https://github.com/TryGhost/Ghost).
- - Development is sponsored by [Mapbox](https://www.mapbox.com/)
+- The module is modeled after [node-gyp](https://github.com/Tootallnate/node-gyp) by [@Tootallnate](https://github.com/Tootallnate)
+- Motivation for initial development came from [@ErisDS](https://github.com/ErisDS) and the [Ghost Project](https://github.com/TryGhost/Ghost).
+- Development is sponsored by [Mapbox](https://www.mapbox.com/)
 
 # FAQ
 
@@ -51,9 +63,9 @@ Options include:
  - `-C/--directory`: run the command in this directory
  - `--build-from-source`: build from source instead of using pre-built binary
  - `--update-binary`: reinstall by replacing previously installed local binary with remote binary
- - `--runtime=electron`: customize the runtime: `node` and `electron` are the valid options
+ - `--runtime=node-webkit`: customize the runtime: `node`, `electron` and `node-webkit` are the valid options
  - `--fallback-to-build`: fallback to building from source if pre-built binary is not available
- - `--target=0.4.0`: Pass the target node version to compile against
+ - `--target=0.4.0`: Pass the target node or node-webkit version to compile against
  - `--target_arch=ia32`: Pass the target arch and override the host `arch`. Valid values are 'ia32','x64', or `arm`.
  - `--target_platform=win32`: Pass the target platform and override the host `platform`. Valid values are `linux`, `darwin`, `win32`, `sunos`, `freebsd`, `openbsd`, and `aix`.
 
@@ -61,9 +73,9 @@ Both `--build-from-source` and `--fallback-to-build` can be passed alone or they
 
 For example: `npm install --build-from-source=myapp`. This is useful if:
 
- - `myapp` is referenced in the package.json of a larger app and therefore `myapp` is being installed as a dependency with `npm install`.
- - The larger app also depends on other modules installed with `node-pre-gyp`
- - You only want to trigger a source compile for `myapp` and the other modules.
+- `myapp` is referenced in the package.json of a larger app and therefore `myapp` is being installed as a dependency with `npm install`.
+- The larger app also depends on other modules installed with `node-pre-gyp`
+- You only want to trigger a source compile for `myapp` and the other modules.
 
 # Configuring
 
@@ -71,24 +83,28 @@ This is a guide to configuring your module to use node-pre-gyp.
 
 ## 1) Add new entries to your `package.json`
 
- - Add `node-pre-gyp` to `dependencies`
+ - Add `@mapbox/node-pre-gyp` to `dependencies`
+ - Add `aws-sdk` as a `devDependency`
  - Add a custom `install` script
  - Declare a `binary` object
 
 This looks like:
 
-```json
-"dependencies"  : {
-  "@tignear/node-pre-gyp": "^1.0.0"
-},
-"scripts": {
-  "install": "node-pre-gyp install --fallback-to-build"
-},
-"binary": {
-  "module_name": "your_module",
-  "module_path": "./lib/binding/",
-  "host": "https://your_module.s3-us-west-1.amazonaws.com"
-}
+```js
+    "dependencies"  : {
+      "@mapbox/node-pre-gyp": "1.x"
+    },
+    "devDependencies": {
+      "aws-sdk": "2.x"
+    }
+    "scripts": {
+        "install": "node-pre-gyp install --fallback-to-build"
+    },
+    "binary": {
+        "module_name": "your_module",
+        "module_path": "./lib/binding/",
+        "host": "https://your_module.s3-us-west-1.amazonaws.com"
+    }
 ```
 
 For a full example see [node-addon-examples's package.json](https://github.com/springmeyer/node-addon-example/blob/master/package.json).
@@ -96,6 +112,7 @@ For a full example see [node-addon-examples's package.json](https://github.com/s
 Let's break this down:
 
  - Dependencies need to list `node-pre-gyp`
+ - Your devDependencies should list `aws-sdk` so that you can run `node-pre-gyp publish` locally or a CI system. We recommend using `devDependencies` only since `aws-sdk` is large and not needed for `node-pre-gyp install` since it only uses http to fetch binaries
  - Your `scripts` section should override the `install` target with `"install": "node-pre-gyp install --fallback-to-build"`. This allows node-pre-gyp to be used instead of the default npm behavior of always source compiling with `node-gyp` directly.
  - Your package.json should contain a `binary` section describing key properties you provide to allow node-pre-gyp to package optimally. They are detailed below.
 
@@ -105,9 +122,9 @@ Let's break this down:
 
 The name of your native node module. This value must:
 
- - Match the name passed to [the NODE_MODULE macro](http://nodejs.org/api/addons.html#addons_hello_world)
- - Must be a valid C variable name (e.g. it cannot contain `-`)
- - Should not include the `.node` extension.
+- Match the name passed to [the NODE_MODULE macro](http://nodejs.org/api/addons.html#addons_hello_world)
+- Must be a valid C variable name (e.g. it cannot contain `-`)
+- Should not include the `.node` extension.
 
 ### module_path
 
@@ -141,18 +158,18 @@ A new target must be added to `binding.gyp` that moves the compiled `.node` modu
 
 Add a target like this at the end of your `targets` list:
 
-```json
-{
-  "target_name": "action_after_build",
-  "type": "none",
-  "dependencies": [ "<(module_name)" ],
-  "copies": [
+```js
     {
-      "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
-      "destination": "<(module_path)"
+      "target_name": "action_after_build",
+      "type": "none",
+      "dependencies": [ "<(module_name)" ],
+      "copies": [
+        {
+          "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
+          "destination": "<(module_path)"
+        }
+      ]
     }
-  ]
-}
 ```
 
 For a full example see [node-addon-example's binding.gyp](https://github.com/springmeyer/node-addon-example/blob/2ff60a8ded7f042864ad21db00c3a5a06cf47075/binding.gyp).
@@ -168,16 +185,16 @@ const binding = require('../build/Release/binding.node');
 or:
 
 ```js
-const bindings = require('./bindings')
+var bindings = require('./bindings')
 ```
 
 Change those lines to:
 
 ```js
-const binary = require('@tignear/node-pre-gyp');
-const path = require('path');
-const metadata = binary.meta(path.resolve(path.join(__dirname,'./package.json')));
-const binding = require(metadata.module);
+var binary = require('@mapbox/node-pre-gyp');
+var path = require('path');
+var binding_path = binary.find(path.resolve(path.join(__dirname,'./package.json')));
+var binding = require(binding_path);
 ```
 
 For a full example see [node-addon-example's index.js](https://github.com/springmeyer/node-addon-example/blob/2ff60a8ded7f042864ad21db00c3a5a06cf47075/index.js#L1-L4)
@@ -206,8 +223,8 @@ Then package your app:
 
 Once packaged you can also host your binaries. To do this requires:
 
- - You manually publish the binary created by the `package` command to an `https` endpoint
- - Ensure that the `host` value points to your custom `https` endpoint.
+- You manually publish the binary created by the `package` command to an `https` endpoint
+- Ensure that the `host` value points to your custom `https` endpoint.
 
 ## 7) You're done!
 
@@ -228,7 +245,7 @@ If a a binary was not available for a given platform and `--fallback-to-build` w
 
 Using `node-pre-gyp` with Node-API projects requires a handful of additional configuration values and imposes some additional requirements.
 
-The most significant difference is that an Node-API module can be coded to target multiple  Node-API versions. Therefore, an Node-API module must declare in its `package.json` file which Node-API versions the module is designed to run against. In addition, since multiple builds may be required for a single module, path and file names must be specified in way that avoids naming conflicts.
+The most significant difference is that an Node-API module can be coded to target multiple Node-API versions. Therefore, an Node-API module must declare in its `package.json` file which Node-API versions the module is designed to run against. In addition, since multiple builds may be required for a single module, path and file names must be specified in way that avoids naming conflicts.
 
 ## The `napi_versions` array property
 
@@ -243,7 +260,7 @@ A Node-API module must declare in its `package.json` file, the Node-API versions
 }
 ```
 
-If the `napi_versions` array property is *not* present, `node-pre-gyp` operates as it always has. Including the `napi_versions` array property instructs `node-pre-gyp` that this is a Node-API module build.
+If the `napi_versions` array property is _not_ present, `node-pre-gyp` operates as it always has. Including the `napi_versions` array property instructs `node-pre-gyp` that this is a Node-API module build.
 
 When the `napi_versions` array property is present, `node-pre-gyp` fires off multiple operations, one for each of the Node-API versions in the array. In the example above, two operations are initiated, one for Node-API version 1 and second for Node-API version 3. How this version number is communicated is described next.
 
@@ -274,7 +291,7 @@ This ensures that `NAPI_VERSION`, an integer value, is declared appropriately to
 
 Since `node-pre-gyp` fires off multiple operations for each request, it is essential that path and file names be created in such a way as to avoid collisions. This is accomplished by imposing additional path and file naming requirements.
 
-Specifically, when performing Node-API builds, the `{napi_build_version}` text configuration value  *must* be present in the `module_path` property. In addition, the `{napi_build_version}` text configuration value  *must* be present in either the `remote_path` or `package_name` property. (No problem if it's in both.)
+Specifically, when performing Node-API builds, the `{napi_build_version}` text configuration value _must_ be present in the `module_path` property. In addition, the `{napi_build_version}` text configuration value _must_ be present in either the `remote_path` or `package_name` property. (No problem if it's in both.)
 
 Here's an example:
 
@@ -340,14 +357,12 @@ The `binary` properties of `module_path`, `remote_path`, and `package_name` supp
  - `platform` matches node's `process.platform` like `linux`, `darwin`, and `win32` unless the user passed the `--target_platform` option to override.
  - `arch` matches node's `process.arch` like `x64` or `ia32` unless the user passes the `--target_arch` option to override.
  - `libc` matches `require('detect-libc').family` like `glibc` or `musl` unless the user passes the `--target_libc` option to override.
- - `libc_version` matches `require('detect-libc').version`
  - `configuration` - Either 'Release' or 'Debug' depending on if `--debug` is passed during the build.
  - `module_name` - the `binary.module_name` attribute from `package.json`.
  - `version` - the semver `version` value for your module from `package.json` (NOTE: ignores the `semver.build` property).
  - `major`, `minor`, `patch`, and `prelease` match the individual semver values for your module's `version`
  - `build` - the sevmer `build` value. For example it would be `this.that` if your package.json `version` was `v1.0.0+this.that`
  - `prerelease` - the semver `prerelease` value. For example it would be `alpha.beta` if your package.json `version` was `v1.0.0-alpha.beta`
-
 
 The options are visible in the code at <https://github.com/mapbox/node-pre-gyp/blob/612b7bca2604508d881e1187614870ba19a7f0c5/lib/util/versioning.js#L114-L127>
 
